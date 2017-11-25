@@ -49,7 +49,12 @@ class recast{
             if(res.intents.length > 0){
                 slug = res.intents[0].slug;
             }
-            return this.responseIntents(slug,res);
+            console.log('Tipo Pregunta : ' + slug);
+            this.RespuestaPredefinidas(slug, res)
+              .then(function(json) {
+                return {'json' : json, 'res': res};
+              })
+              .catch(function(e) { console.log(e) })
             
         }).catch((error) => {
             return error
@@ -71,40 +76,46 @@ class recast{
     }
 
     responseIntents(slug,res){
-        switch (intents) {
-            case 'greetings':
-                var resp = this.greetingsResponse[this.getRandomInt(0,greetingsResponse.length)]
-                return resp;
-                break;
-            case 'ask-creator':
-                var resp = this.creatorResponse[this.getRandomInt(0,creatorResponse.length)]
-                return resp;
-                break;
-            case 'ask-feeling':
-                var resp = this.feelingsResponse[this.getRandomInt(0,feelingsResponse.length)]
-                return resp;
-                break;
-            case 'get-time':
-                var resp = 'La fecha exacta es ' + datehour;
-                return resp;
+        switch (intents){
+            case 'product_info':
+                if(typeof res.entities.produc_id  !== 'undefined'){
+                    return getProductApibyId(res.entities.produc_id[0].value);
+                }else{
+                    return new Promise(function(resolve, reject) {
+                        var json = {'response': productResponseNodetails[getRandomInt(0,productResponseNodetails.length)],'data':''};
+                        resolve(json)
+                    })
+                }
                 break;
             case 'product_list':
-                var resp = 'La fecha exacta es ' + datehour;
-                return resp;
+                if(typeof parseInt(res.entities.category) !== 'undefined'){
+                    return getProductApibyTerm(res.entities.category[0].value);
+                }else{
+                    return new Promise(function(resolve, reject) {
+                        var json = { 'response': productResponseList[getRandomInt(0,productResponseList.length)],'data':'' };
+                        resolve(json)
+                    })
+                }
                 break;
-            case 'random_prod':
-                var resp = 'La fecha exacta es ' + datehour;
-                return resp;
-                break;
-            case 'product_info':
-                var resp = 'La fecha exacta es ' + datehour;
-                return resp;
+            case 'add_to_cart':
+                if(typeof res.entities.product_name !== 'undefined'){
+                    return  getProductApibyTerm(res.entities.product_name[0].value);
+                }else{
+                    return new Promise(function(resolve, reject) {
+                        var json = { 'response': 'Dime que quieres agregar al carro.','data':''}
+                        resolve(json)
+                    })
+                }
                 break;
             default:
-                var resp = this.defauldResponse[this.getRandomInt(0,defauldResponse.length)]
-                return resp;
+                return new Promise(function(resolve, reject) {
+                    var json = {'response': defauldResponse[getRandomInt(0,defauldResponse.length)], 'data': ''};
+                    resolve(json)
+                })
                 break;
+        }
     }
+    
 
     getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min)) + min;
