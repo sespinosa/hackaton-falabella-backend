@@ -1,0 +1,152 @@
+var recastai = require('recastai').default;
+var axios = require('axios');
+
+class recast{
+    constructor(error,msg){
+        this.requestToken = '7064b2f619f55f48e66574528fdb58e2';
+
+        /**
+         * Repuestas predefinidas del BOT utilizar con getRandomInt();
+         * example = agendarReponseNotTime[getRandomInt(0,agendarReponseNotTime.length)]
+         */
+        this.defauldResponse = [
+            'No entiendo muy bien tu pregunta, tal vez no me han configurado para esto.',
+            'Por el momento no puedo entenderte, pero puedes preguntarme que hacer para mostrarte mis capacidades.',
+            'No puedo entenderte, mis capacidades son limitadas :('
+        ];
+
+        this.greetingsResponse = [
+            'Hola mi nombre es Cecilia, preguntame lo que puedes hacer',
+            'Hola, Soy Cecilia, el ayudate virtual para tus compras',
+            'Hola, dime en que te puedo ayudar.'
+        ];
+
+        this.creatorResponse = [
+            'Mis Creadores son un equipo que se conformo en la hackathon de falabella',
+            'Vengo de una internet muy lejana y no te puedes imaginar con que tecnologia estoy programado!!! :D',
+        ]
+
+        this.feelingsResponse = [
+            'Estoy muy bien gracias',
+            'Mis bytes estan desordenados.',
+            'Tengo un corto circuito que no me permite estar al 100% de funcionamiento',
+            'Creo que mis ram estan trabajando mucho, asi que me siento algo cansado.'
+        ];
+
+        this.productResponseNodetails = [
+            'Si claro, categoría de producto buscas?',
+            'Claro, me puedes nombrar el producto o darme el ID de la web.',
+            'Claro!, te puedo recomendar buscar calzado,poleras,pantalones tu elije!.'
+        ]
+
+    }
+
+    requestIntencion(text){
+        const client = new recastai(requestToken);
+        client.request.converseText(msg)
+        .then((res) => {
+            var slug = 'defauld';
+            if(res.intents.length > 0){
+                slug = res.intents[0].slug;
+            }
+            return this.responseIntents(slug,res);
+            
+        }).catch((error) => {
+            return error
+        })
+    }
+
+    requestEntities(text){
+        const client = new recastai(requestToken);
+        client.request.converseText(msg)
+        .then((res) => {
+            if(res.entities.length > 0){
+                return res.entities;
+            }else{
+                return false;
+            }           
+        }).catch((error) => {
+            return error;
+        })
+    }
+
+    responseIntents(slug,res){
+        switch (intents) {
+            case 'greetings':
+                var resp = this.greetingsResponse[this.getRandomInt(0,greetingsResponse.length)]
+                return resp;
+                break;
+            case 'ask-creator':
+                var resp = this.creatorResponse[this.getRandomInt(0,creatorResponse.length)]
+                return resp;
+                break;
+            case 'ask-feeling':
+                var resp = this.feelingsResponse[this.getRandomInt(0,feelingsResponse.length)]
+                return resp;
+                break;
+            case 'get-time':
+                var resp = 'La fecha exacta es ' + datehour;
+                return resp;
+                break;
+            case 'product_list':
+                var resp = 'La fecha exacta es ' + datehour;
+                return resp;
+                break;
+            case 'random_prod':
+                var resp = 'La fecha exacta es ' + datehour;
+                return resp;
+                break;
+            case 'product_info':
+                var resp = 'La fecha exacta es ' + datehour;
+                return resp;
+                break;
+            default:
+                var resp = this.defauldResponse[this.getRandomInt(0,defauldResponse.length)]
+                return resp;
+                break;
+    }
+
+    getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    getProductApibyId(product_id){
+        return new Promise(function(resolve, reject) {
+            axios.get('http://www.falabella.com/falabella-cl/product/' + product_id + '/?format=json')
+            .then(function (response) {
+              console.log(response.data); //contents[0].mainSection[0].contents[0].JSON 
+              var json = { 
+                  'response' : 'He encontrado ' + response.data.contents[0].mainSection[0].contents[0].JSON + ' productos que te pueden interesar' , 
+                  'data' : response.data.contents[0].mainSection[0].contents[0].JSON
+                };
+              console.log(json)
+              resolve(json);
+            })
+            .catch(function (error) {
+              console.log(error);
+              reject('No he logrado encontrar tu producto.')
+            });
+        })
+    }
+
+    getProductApibyTerm(search){
+        return new Promise(function(resolve, reject) {
+            axios.get('http://www.falabella.com/falabella-cl/search/?Ntt=' + search + '&format=json')
+            .then(function (response) {
+              //console.log(response.data.contents[0].mainSection[1].contents[0].JSON); //.mainSection[0].contents[0].JSON.product
+              //console.log(response);
+              var json = { 
+                  'response' : 'He encontrado ' + response.data.contents[0].mainSection[1].contents[0].JSON.searchItemList.resultsTotal + 'Productos...' , 
+                  'data' : response.data.contents[0].mainSection[1].contents[0].JSON.searchItemList.resultList 
+                };
+              console.log(json)
+              resolve(json);
+            })
+            .catch(function (error) {
+              console.log(error);
+              reject('No he logrado encontrar tu producto.')
+            });
+        })
+    }
+    
+}
