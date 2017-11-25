@@ -2,6 +2,7 @@ import express from 'express';
 import userRoutes from './user.route';
 import authRoutes from './auth.route';
 import imageRoutes from './image.route'
+import voiceRoutes from './voice.route'
 
 const router = express.Router(); // eslint-disable-line new-cap
 
@@ -17,5 +18,7 @@ router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
 
 router.use('/images', imageRoutes)
+
+router.use('/instructions', voiceRoutes)
 
 export default router;

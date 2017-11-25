@@ -41,7 +41,7 @@
     "boilerplate"
   ],
   "dependencies": {
-    "axios": "false0.17.1",
+    "axios": "0.17.1",
     "bluebird": "3.4.6",
     "body-parser": "1.15.2",
     "compression": "1.6.2",
@@ -60,7 +60,7 @@
     "method-override": "^2.3.5",
     "mongoose": "4.7.4",
     "morgan": "1.7.0",
-    "recastai": "false3.6.0",
+    "recastai": "3.6.0",
     "request": "2.83.0",
     "winston": "2.3.0"
   },

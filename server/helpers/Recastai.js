@@ -1,9 +1,9 @@
 var recastai = require('recastai').default;
 var axios = require('axios');
 
-class recast{
-    constructor(error,msg){
-        this.requestToken = '7064b2f619f55f48e66574528fdb58e2';
+class recast {
+    constructor(){
+        this.requestToken = '6d097815dba1cc0e6c946e9080ffa40a';
 
         /**
          * Repuestas predefinidas del BOT utilizar con getRandomInt();
@@ -41,81 +41,108 @@ class recast{
 
     }
 
-    requestIntencion(text){
+/*     requestIntencion(text){
+        const requestToken = this.requestToken
         const client = new recastai(requestToken);
-        client.request.converseText(msg)
+        return client.request.converseText(text)
         .then((res) => {
             var slug = 'defauld';
             if(res.intents.length > 0){
                 slug = res.intents[0].slug;
             }
             console.log('Tipo Pregunta : ' + slug);
-            this.RespuestaPredefinidas(slug, res)
+            return this.responseIntents(slug, res)
               .then(function(json) {
+                  console.log('###############')
+                  console.log(json)
+                  console.log('###############')
                 return {'json' : json, 'res': res};
               })
               .catch(function(e) { console.log(e) })
-            
+
         }).catch((error) => {
             return error
         })
+    } */
+
+    requestIntencion(text) {
+        const client = new recastai(this.requestToken)
+        return client.request.converseText(text)
+            .then(res => {
+                let slug = 'defauld'
+                if(res.intents.length > 0) {
+                    slug = res.intents[0].slug
+                }
+                return this.responseIntents(slug, res)
+            })
+            .then((json, res) => ({json, res}))
+            .catch(e => console.log(e))
     }
 
     requestEntities(text){
         const client = new recastai(requestToken);
-        client.request.converseText(msg)
+        client.request.converseText(text)
         .then((res) => {
             if(res.entities.length > 0){
                 return res.entities;
             }else{
                 return false;
-            }           
+            }
         }).catch((error) => {
             return error;
         })
     }
 
-    responseIntents(slug,res){
+    responseIntents(intents,res){
+
+
+        console.log('########################')
+        console.log('########################')
+        console.log(res.entities)
+        console.log('########################')
+        console.log('########################')
+
+
         switch (intents){
             case 'product_info':
                 if(typeof res.entities.produc_id  !== 'undefined'){
-                    return getProductApibyId(res.entities.produc_id[0].value);
+                    return this.getProductApibyId(res.entities.produc_id[0].value);
                 }else{
-                    return new Promise(function(resolve, reject) {
-                        var json = {'response': productResponseNodetails[getRandomInt(0,productResponseNodetails.length)],'data':''};
-                        resolve(json)
+                    return new Promise((resolve, reject) => {
+                        var json = {'response': this.productResponseNodetails[this.getRandomInt(0,this.productResponseNodetails.length)],'data':''};
+                        resolve(json, res)
                     })
                 }
                 break;
             case 'product_list':
                 if(typeof parseInt(res.entities.category) !== 'undefined'){
-                    return getProductApibyTerm(res.entities.category[0].value);
+                    return this.getProductApibyTerm(res.entities.category[0].value);
                 }else{
-                    return new Promise(function(resolve, reject) {
-                        var json = { 'response': productResponseList[getRandomInt(0,productResponseList.length)],'data':'' };
-                        resolve(json)
+                    return new Promise((resolve, reject) => {
+                        var json = { 'response': this.productResponseList[this.getRandomInt(0,this.productResponseList.length)],'data':'' };
+                        resolve(json, res)
                     })
                 }
                 break;
             case 'add_to_cart':
                 if(typeof res.entities.product_name !== 'undefined'){
-                    return  getProductApibyTerm(res.entities.product_name[0].value);
+                    return  this.getProductApibyTerm(res.entities.product_name[0].value);
                 }else{
-                    return new Promise(function(resolve, reject) {
+                    return new Promise((resolve, reject) => {
                         var json = { 'response': 'Dime que quieres agregar al carro.','data':''}
-                        resolve(json)
+                        resolve(json, res)
                     })
                 }
                 break;
             default:
-                return new Promise(function(resolve, reject) {
-                    var json = {'response': defauldResponse[getRandomInt(0,defauldResponse.length)], 'data': ''};
-                    resolve(json)
+                return new Promise((resolve, reject) => {
+                    var json = {'response': this.defauldResponse[this.getRandomInt(0,this.defauldResponse.length)], 'data': ''};
+                    resolve(json, res)
                 })
                 break;
         }
     }
-    
+
 
     getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min)) + min;
@@ -125,9 +152,9 @@ class recast{
         return new Promise(function(resolve, reject) {
             axios.get('http://www.falabella.com/falabella-cl/product/' + product_id + '/?format=json')
             .then(function (response) {
-              console.log(response.data); //contents[0].mainSection[0].contents[0].JSON 
-              var json = { 
-                  'response' : 'He encontrado ' + response.data.contents[0].mainSection[0].contents[0].JSON + ' productos que te pueden interesar' , 
+              console.log(response.data); //contents[0].mainSection[0].contents[0].JSON
+              var json = {
+                  'response' : 'He encontrado ' + response.data.contents[0].mainSection[0].contents[0].JSON + ' productos que te pueden interesar' ,
                   'data' : response.data.contents[0].mainSection[0].contents[0].JSON
                 };
               console.log(json)
@@ -146,11 +173,10 @@ class recast{
             .then(function (response) {
               //console.log(response.data.contents[0].mainSection[1].contents[0].JSON); //.mainSection[0].contents[0].JSON.product
               //console.log(response);
-              var json = { 
-                  'response' : 'He encontrado ' + response.data.contents[0].mainSection[1].contents[0].JSON.searchItemList.resultsTotal + 'Productos...' , 
-                  'data' : response.data.contents[0].mainSection[1].contents[0].JSON.searchItemList.resultList 
+              var json = {
+                  'response' : 'He encontrado ' + response.data.contents[0].mainSection[1].contents[0].JSON.searchItemList.resultsTotal + 'Productos...' ,
+                  'data' : response.data.contents[0].mainSection[1].contents[0].JSON.searchItemList.resultList
                 };
-              console.log(json)
               resolve(json);
             })
             .catch(function (error) {
@@ -159,5 +185,7 @@ class recast{
             });
         })
     }
-    
+
 }
+
+export default recast

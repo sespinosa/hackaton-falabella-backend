@@ -234,7 +234,7 @@ aws4@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.6.0.tgz#83ef5ca860b2b32e4a0deedee8c771b9db57471e"
 
-axios@false0.17.1:
+axios@0.17.1:
   version "0.17.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.17.1.tgz#2d8e3e5d0bdbd7327f91bc814f5c57660f81824d"
   dependencies:
@@ -4301,7 +4301,7 @@ readline2@^1.0.1:
     is-fullwidth-code-point "^1.0.0"
     mute-stream "0.0.5"
 
-recastai@false3.6.0:
+recastai@3.6.0:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/recastai/-/recastai-3.6.0.tgz#6a8cdd039fac5aa55f423bc160f25c858a1f39a8"
   dependencies:
